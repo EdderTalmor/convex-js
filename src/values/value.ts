@@ -327,7 +327,12 @@ export function stringifyValueForError(value: any) {
       return `${value.toString()}n`;
     }
     return value;
-  });
+    // `JSON.stringify` returns `undefined` instead of a string when the
+    // top-level value is `undefined`, a function, or a symbol. The replacer
+    // above maps those to placeholders, but guard the result anyway so this
+    // error-formatting path can never throw and mask the real error
+    // (see get-convex/convex-js#190).
+  }) ?? "undefined";
   if (str.length > MAX_VALUE_FOR_ERROR_LEN) {
     const rest = "[...truncated]";
     let truncateAt = MAX_VALUE_FOR_ERROR_LEN - rest.length;
